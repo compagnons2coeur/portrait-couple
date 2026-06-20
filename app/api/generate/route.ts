@@ -77,7 +77,8 @@ export async function POST(request: NextRequest) {
         image_urls: [uploadedUrl],
         num_images: 1,
         output_format: "jpeg",
-        resolution: "4K",
+        resolution: "2K",
+        aspect_ratio: "3:4",
       },
     });
 

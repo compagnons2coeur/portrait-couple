@@ -48,7 +48,7 @@ function StyleCard({
           <img
             src={`/styles/${style.id}.jpg`}
             alt={style.nameFr}
-            className="h-full w-full object-cover"
+            className={`h-full w-full object-cover ${style.id === "argentique" ? "object-top" : ""}`}
             onError={() => setImageError(true)}
           />
         ) : (
@@ -91,6 +91,7 @@ export default function PortraitTunnel() {
   const [generationMessage, setGenerationMessage] = useState(
     "Nous préparons votre portrait…"
   );
+  const [progressPct, setProgressPct] = useState(0);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState<string | null>(null);
@@ -221,16 +222,16 @@ export default function PortraitTunnel() {
     }
   };
 
-  const handleStyleSelect = async (style: Style) => {
+  const handleStyleSelect = (style: Style) => {
     resetError();
     setSelectedStyle(style);
+  };
 
-    if (!fingerprint) {
-      setError("Identification de l'appareil en cours…");
-      return;
-    }
+  const handleConfirmGeneration = async () => {
+    if (!selectedStyle || !fingerprint) return;
+    resetError();
 
-    const remaining = await fetchCredits(style.id, fingerprint);
+    const remaining = await fetchCredits(selectedStyle.id, fingerprint);
     setCreditsRemaining(remaining);
 
     if (remaining === 0) {
@@ -238,7 +239,7 @@ export default function PortraitTunnel() {
       return;
     }
 
-    const params = new URLSearchParams({ styleId: style.id, fingerprint });
+    const params = new URLSearchParams({ styleId: selectedStyle.id, fingerprint });
     const creditsResponse = await fetch(`/api/credits?${params}`);
     if (creditsResponse.ok) {
       const creditsData = (await creditsResponse.json()) as { needsEmail?: boolean };
@@ -248,7 +249,7 @@ export default function PortraitTunnel() {
       }
     }
 
-    await startGeneration(style);
+    await startGeneration(selectedStyle);
   };
 
   const handleEmailSubmit = async (event: React.FormEvent) => {
@@ -263,6 +264,34 @@ export default function PortraitTunnel() {
     if (!selectedStyle) return;
     await startGeneration(selectedStyle, email.trim());
   };
+
+  const PROGRESS_STEPS = [
+    { pct: 8,  msg: "Analyse de votre animal en cours…" },
+    { pct: 20, msg: "Identification des traits distinctifs…" },
+    { pct: 35, msg: "Application du style artistique…" },
+    { pct: 50, msg: "Ajout des détails et textures…" },
+    { pct: 65, msg: "Mise en scène du portrait…" },
+    { pct: 78, msg: "Finalisation des couleurs…" },
+    { pct: 88, msg: "Dernières retouches…" },
+    { pct: 94, msg: "Presque prêt…" },
+  ];
+
+  useEffect(() => {
+    if (step !== "generating") { setProgressPct(0); return; }
+
+    setProgressPct(0);
+    let stepIndex = 0;
+    const interval = setInterval(() => {
+      if (stepIndex < PROGRESS_STEPS.length) {
+        setProgressPct(PROGRESS_STEPS[stepIndex].pct);
+        setGenerationMessage(PROGRESS_STEPS[stepIndex].msg);
+        stepIndex++;
+      }
+    }, 4000);
+
+    return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
 
   useEffect(() => {
     if (step !== "generating" || !jobId) return;
@@ -280,6 +309,7 @@ export default function PortraitTunnel() {
         if (cancelled) return;
 
         if (data.status === "completed" && data.imageUrl) {
+          setProgressPct(100);
           setGenerationMessage("Application du filigrane…");
 
           try {
@@ -476,6 +506,28 @@ export default function PortraitTunnel() {
             }}
           />
 
+          {!photoFile && (
+            <>
+              <div className="my-4 flex items-center gap-3">
+                <div className="h-px flex-1 bg-stone-200" />
+                <span className="text-xs text-stone-400">OU</span>
+                <div className="h-px flex-1 bg-stone-200" />
+              </div>
+              <button
+                type="button"
+                onClick={async () => {
+                  const res = await fetch("/exemple-pet.jpg");
+                  const blob = await res.blob();
+                  const file = new File([blob], "exemple-pet.jpg", { type: "image/jpeg" });
+                  handleFile(file);
+                }}
+                className="w-full rounded-2xl border border-stone-200 bg-stone-50 px-6 py-3 text-sm font-medium text-stone-700 transition hover:border-green-300 hover:bg-green-50"
+              >
+                🐾 Essayer avec une photo d&apos;exemple
+              </button>
+            </>
+          )}
+
           <button
             type="button"
             disabled={!photoFile}
@@ -519,6 +571,21 @@ export default function PortraitTunnel() {
             ))}
           </div>
 
+          {selectedStyle && !isSubmitting && (
+            <div className="mt-8 rounded-2xl border border-green-100 bg-green-50 p-4">
+              <p className="mb-3 text-center text-sm font-medium text-stone-700">
+                Style sélectionné : <span className="text-green-700">{selectedStyle.nameFr}</span>
+              </p>
+              <button
+                type="button"
+                onClick={handleConfirmGeneration}
+                className="w-full rounded-full bg-green-600 px-6 py-3 font-semibold text-white transition hover:bg-green-700"
+              >
+                Générer ce portrait →
+              </button>
+            </div>
+          )}
+
           {isSubmitting && (
             <p className="mt-6 text-center text-sm text-stone-500">
               Lancement de la génération…
@@ -529,16 +596,28 @@ export default function PortraitTunnel() {
 
       {step === "generating" && (
         <section className="rounded-3xl border border-stone-200 bg-white p-10 text-center shadow-sm">
-          <div className="mx-auto mb-6 h-16 w-16 animate-spin rounded-full border-4 border-green-200 border-t-green-500" />
-          <h2 className="font-serif text-2xl text-stone-800">
-            3. Création en cours
+          <h2 className="mb-2 font-serif text-2xl text-stone-800">
+            Création en cours…
           </h2>
-          <p className="mt-3 text-stone-600">{generationMessage}</p>
           {selectedStyle && (
-            <p className="mt-2 text-sm text-stone-500">
+            <p className="mb-8 text-sm text-stone-500">
               Style : {selectedStyle.nameFr}
             </p>
           )}
+
+          {/* Barre de progression */}
+          <div className="mb-4 h-2.5 w-full overflow-hidden rounded-full bg-stone-100">
+            <div
+              className="h-full rounded-full bg-green-500 transition-all duration-[3000ms] ease-out"
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
+          <div className="flex justify-between text-xs text-stone-400 mb-6">
+            <span>{progressPct}%</span>
+            <span>~30 secondes</span>
+          </div>
+
+          <p className="text-stone-600 transition-all duration-500">{generationMessage}</p>
         </section>
       )}
 
