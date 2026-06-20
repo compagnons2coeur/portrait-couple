@@ -8,15 +8,21 @@ const TOKEN = process.env.SHOPIFY_ADMIN_TOKEN!;
 
 export async function POST(request: NextRequest) {
   try {
-    const { variantId, quantity, portraitUrl } = await request.json() as {
+    const { variantId, quantity, portraitUrl, properties } = await request.json() as {
       variantId: number;
       quantity: number;
       portraitUrl: string;
+      properties?: { name: string; value: string }[];
     };
 
     if (!variantId || !portraitUrl) {
       return NextResponse.json({ error: "Paramètres manquants." }, { status: 400 });
     }
+
+    const lineProperties = [
+      { name: "Portrait IA", value: portraitUrl },
+      ...(properties ?? []),
+    ];
 
     const res = await fetch(`https://${SHOP}/admin/api/2024-10/draft_orders.json`, {
       method: "POST",
@@ -30,9 +36,7 @@ export async function POST(request: NextRequest) {
             {
               variant_id: variantId,
               quantity: quantity ?? 1,
-              properties: [
-                { name: "Portrait IA", value: portraitUrl },
-              ],
+              properties: lineProperties,
             },
           ],
         },
