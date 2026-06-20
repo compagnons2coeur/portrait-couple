@@ -3,18 +3,26 @@
 @tailwind utilities;
 
 :root {
-  --background: #fffaf8;
-  --foreground: #292524;
+  --bg: #f7f5f2;
+  --ink: #1c1917;
+  --muted: #78716c;
+  --border: #e5e1db;
+  --green: #2d6a4f;
+  --green-light: #e8f2ec;
+}
+
+html {
+  background: var(--bg);
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: var(--font-geist-sans), Georgia, "Times New Roman", serif;
+  color: var(--ink);
+  background: var(--bg);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+  .text-balance { text-wrap: balance; }
+  .font-display { font-family: Georgia, "Times New Roman", serif; }
 }

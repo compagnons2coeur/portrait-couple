@@ -16,12 +16,12 @@ const TABLEAU_TOILE = {
 };
 
 const CADRES = [
-  { id: "sans-cadre",   label: "Sans cadre",   surcharge: 0,  color: null },
-  { id: "noir",         label: "Noir",          surcharge: 20, color: "#1a1a1a" },
-  { id: "naturel",      label: "Naturel",       surcharge: 20, color: "#c4a97d" },
-  { id: "blanc",        label: "Blanc",         surcharge: 20, color: "#f5f5f0" },
-  { id: "marron",       label: "Marron",        surcharge: 20, color: "#7a4a2e" },
-  { id: "dore-antique", label: "Doré antique",  surcharge: 25, color: "#c9a84c" },
+  { id: "sans-cadre",   label: "Sans cadre",  surcharge: 0,  color: null },
+  { id: "noir",         label: "Noir",         surcharge: 20, color: "#1a1a1a" },
+  { id: "naturel",      label: "Naturel",      surcharge: 20, color: "#c4a97d" },
+  { id: "blanc",        label: "Blanc",        surcharge: 20, color: "#f0ede8" },
+  { id: "marron",       label: "Marron",       surcharge: 20, color: "#7a4a2e" },
+  { id: "dore-antique", label: "Doré antique", surcharge: 25, color: "#c9a84c" },
 ];
 
 const DIGITAL_PRICE = 4.99;
@@ -35,6 +35,24 @@ interface Props {
 
 function fmt(price: number) {
   return price.toFixed(2).replace(".", ",") + "€";
+}
+
+function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onToggle}
+      onKeyDown={e => e.key === "Enter" && onToggle()}
+      className="relative h-6 w-11 rounded-full transition-colors cursor-pointer"
+      style={{ backgroundColor: on ? "var(--green)" : "var(--border)" }}
+    >
+      <span
+        className="absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform"
+        style={{ transform: on ? "translateX(20px)" : "translateX(2px)" }}
+      />
+    </div>
+  );
 }
 
 export default function SupportSelector({ mockupImageUrl, shopifyImageUrl, petName, onBack }: Props) {
@@ -51,17 +69,12 @@ export default function SupportSelector({ mockupImageUrl, shopifyImageUrl, petNa
 
   useEffect(() => {
     const generate = async () => {
-      setLoading(true);
-      setError(null);
+      setLoading(true); setError(null);
       try {
         const res = await fetch("/api/mockup", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            imageUrl: mockupImageUrl,
-            mockupUuid: TABLEAU_TOILE.mockupUuid,
-            smartObjectUuid: TABLEAU_TOILE.smartObjectUuid,
-          }),
+          body: JSON.stringify({ imageUrl: mockupImageUrl, mockupUuid: TABLEAU_TOILE.mockupUuid, smartObjectUuid: TABLEAU_TOILE.smartObjectUuid }),
         });
         const data = await res.json() as { mockupUrl?: string; error?: string };
         if (!res.ok || !data.mockupUrl) throw new Error(data.error ?? "Erreur génération mockup.");
@@ -86,14 +99,8 @@ export default function SupportSelector({ mockupImageUrl, shopifyImageUrl, petNa
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          variantId: selectedVariant.variantId,
-          quantity: 1,
-          portraitUrl: shopifyImageUrl,
-          properties,
-        }),
+        body: JSON.stringify({ variantId: selectedVariant.variantId, quantity: 1, portraitUrl: shopifyImageUrl, properties }),
       });
-
       const data = await res.json() as { checkoutUrl?: string; error?: string };
       if (!res.ok || !data.checkoutUrl) throw new Error(data.error ?? "Erreur création commande.");
       window.location.href = data.checkoutUrl;
@@ -109,59 +116,61 @@ export default function SupportSelector({ mockupImageUrl, shopifyImageUrl, petNa
       <button
         type="button"
         onClick={onBack}
-        className="mb-5 flex items-center gap-1.5 text-sm text-stone-500 hover:text-stone-700"
+        className="mb-8 flex items-center gap-1.5 text-sm transition hover:opacity-70"
+        style={{ color: "var(--muted)" }}
       >
         ← Retour aux supports
       </button>
 
-      <div className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm lg:flex">
-        {/* Left — mockup */}
-        <div className="flex min-h-80 items-center justify-center bg-stone-100 lg:w-1/2">
-          {loading && (
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-green-200 border-t-green-600" />
-          )}
-          {error && (
-            <p className="px-8 text-center text-sm text-red-500">{error}</p>
-          )}
-          {mockupUrl && !loading && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={mockupUrl}
-              alt="Aperçu du tableau toile"
-              className="h-full w-full object-cover"
-            />
-          )}
+      <div className="lg:flex lg:gap-16 lg:items-start">
+
+        {/* Left — mockup sticky */}
+        <div className="lg:sticky lg:top-8 lg:w-[52%] shrink-0 mb-8 lg:mb-0">
+          <div className="overflow-hidden rounded-2xl flex items-center justify-center min-h-72 lg:min-h-[540px]" style={{ backgroundColor: "#f0ece8" }}>
+            {loading && (
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-stone-200 border-t-stone-500" />
+            )}
+            {error && (
+              <p className="px-8 text-center text-sm text-red-400">{error}</p>
+            )}
+            {mockupUrl && !loading && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={mockupUrl} alt="Aperçu du tableau toile" className="w-full h-full object-cover" />
+            )}
+          </div>
         </div>
 
         {/* Right — options */}
-        <div className="flex flex-col divide-y divide-stone-100 lg:w-1/2">
+        <div className="lg:w-[48%] space-y-8">
+
           {/* Header */}
-          <div className="p-6 sm:p-8">
-            <h2 className="font-serif text-2xl text-stone-800">{TABLEAU_TOILE.label}</h2>
-            <p className="mt-1 text-sm text-stone-500">{TABLEAU_TOILE.description}</p>
+          <div>
+            <h2 className="font-display text-3xl text-stone-900" style={{ letterSpacing: "-0.01em" }}>
+              {TABLEAU_TOILE.label}
+            </h2>
+            <p className="mt-1 text-sm" style={{ color: "var(--muted)" }}>{TABLEAU_TOILE.description}</p>
           </div>
 
           {/* FORMAT */}
-          <div className="p-6 sm:px-8">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-stone-400">Format</p>
+          <div>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--muted)" }}>Format</p>
             <div className="grid grid-cols-2 gap-2">
-              {TABLEAU_TOILE.variants.map((v) => {
+              {TABLEAU_TOILE.variants.map(v => {
                 const active = selectedVariant.variantId === v.variantId;
                 return (
                   <button
                     key={v.variantId}
                     type="button"
                     onClick={() => setSelectedVariant(v)}
-                    className={`rounded-xl border p-3 text-center transition ${
-                      active
-                        ? "border-stone-800 bg-stone-800 text-white"
-                        : "border-stone-200 text-stone-700 hover:border-stone-400"
-                    }`}
+                    className="rounded-xl border py-3 px-4 text-center transition-all"
+                    style={{
+                      borderColor: active ? "var(--ink)" : "var(--border)",
+                      backgroundColor: active ? "var(--ink)" : "white",
+                      color: active ? "white" : "var(--ink)",
+                    }}
                   >
                     <span className="block text-sm font-semibold">{v.label}</span>
-                    <span className={`text-xs ${active ? "text-stone-300" : "text-stone-400"}`}>
-                      {fmt(v.price)}
-                    </span>
+                    <span className="text-xs opacity-60">{fmt(v.price)}</span>
                   </button>
                 );
               })}
@@ -169,34 +178,31 @@ export default function SupportSelector({ mockupImageUrl, shopifyImageUrl, petNa
           </div>
 
           {/* CADRE */}
-          <div className="p-6 sm:px-8">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-stone-400">Cadre</p>
+          <div>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--muted)" }}>Cadre</p>
             <div className="grid grid-cols-3 gap-2">
-              {CADRES.map((c) => {
+              {CADRES.map(c => {
                 const active = selectedCadre.id === c.id;
                 return (
                   <button
                     key={c.id}
                     type="button"
                     onClick={() => setSelectedCadre(c)}
-                    className={`flex flex-col items-center gap-2 rounded-xl border p-3 text-center transition ${
-                      active
-                        ? "border-stone-800 bg-stone-50"
-                        : "border-stone-200 hover:border-stone-400"
-                    }`}
+                    className="flex flex-col items-center gap-1.5 rounded-xl border py-3 px-2 text-center transition-all"
+                    style={{
+                      borderColor: active ? "var(--ink)" : "var(--border)",
+                      backgroundColor: active ? "#faf9f7" : "white",
+                    }}
                   >
                     {c.color ? (
-                      <span
-                        className="h-6 w-6 rounded-full border border-stone-200 shadow-sm"
-                        style={{ backgroundColor: c.color }}
-                      />
+                      <span className="h-5 w-5 rounded-full border shadow-sm" style={{ backgroundColor: c.color, borderColor: "var(--border)" }} />
                     ) : (
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full border border-dashed border-stone-300">
-                        <span className="h-3 w-3 rounded-full border border-stone-300" />
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full border border-dashed" style={{ borderColor: "var(--border)" }}>
+                        <span className="h-2 w-2 rounded-full" style={{ backgroundColor: "var(--border)" }} />
                       </span>
                     )}
-                    <span className="text-xs font-medium text-stone-700">{c.label}</span>
-                    <span className="text-xs text-stone-400">
+                    <span className="text-xs font-medium text-stone-700 leading-tight">{c.label}</span>
+                    <span className="text-[10px]" style={{ color: "var(--muted)" }}>
                       {c.surcharge === 0 ? "Inclus" : `+${fmt(c.surcharge)}`}
                     </span>
                   </button>
@@ -206,41 +212,28 @@ export default function SupportSelector({ mockupImageUrl, shopifyImageUrl, petNa
           </div>
 
           {/* OPTIONS */}
-          <div className="p-6 sm:px-8">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-stone-400">Options</p>
-            <div className="space-y-3">
+          <div>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--muted)" }}>Options</p>
+            <div className="space-y-2">
               {/* Signature */}
               <div
                 role="button"
                 tabIndex={0}
-                onClick={() => setWithSignature((v) => !v)}
-                onKeyDown={(e) => e.key === "Enter" && setWithSignature((v) => !v)}
-                className="flex cursor-pointer items-center gap-4 rounded-xl border border-stone-200 p-4 transition hover:border-stone-300"
+                onClick={() => setWithSignature(v => !v)}
+                onKeyDown={e => e.key === "Enter" && setWithSignature(v => !v)}
+                className="flex cursor-pointer items-center gap-4 rounded-xl border p-4 transition hover:bg-stone-50"
+                style={{ borderColor: "var(--border)" }}
               >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-stone-100 text-lg">
-                  ✍️
-                </div>
+                <span className="text-xl">✍️</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-stone-800">Signature</p>
-                  <p className="text-xs text-stone-500 truncate">
-                    {petName
-                      ? `Prénom « ${petName} » gravé sur le tableau`
-                      : "Ajoutez le prénom de votre compagnon"}
+                  <p className="text-sm font-semibold text-stone-800">Signature</p>
+                  <p className="text-xs truncate" style={{ color: "var(--muted)" }}>
+                    {petName ? `Prénom « ${petName} » gravé sur le tableau` : "Ajoutez le prénom de votre compagnon"}
                   </p>
                 </div>
-                <div className="flex shrink-0 flex-col items-end gap-1">
-                  <span className="text-xs font-semibold text-green-600">Offert</span>
-                  <div
-                    className={`relative h-6 w-11 rounded-full transition-colors ${
-                      withSignature ? "bg-green-500" : "bg-stone-200"
-                    }`}
-                  >
-                    <span
-                      className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-                        withSignature ? "translate-x-5" : "translate-x-0.5"
-                      }`}
-                    />
-                  </div>
+                <div className="shrink-0 flex flex-col items-end gap-1.5">
+                  <span className="text-xs font-bold" style={{ color: "var(--green)" }}>Offert</span>
+                  <Toggle on={withSignature} onToggle={() => setWithSignature(v => !v)} />
                 </div>
               </div>
 
@@ -248,55 +241,44 @@ export default function SupportSelector({ mockupImageUrl, shopifyImageUrl, petNa
               <div
                 role="button"
                 tabIndex={0}
-                onClick={() => setWithDigital((v) => !v)}
-                onKeyDown={(e) => e.key === "Enter" && setWithDigital((v) => !v)}
-                className="flex cursor-pointer items-center gap-4 rounded-xl border border-stone-200 p-4 transition hover:border-stone-300"
+                onClick={() => setWithDigital(v => !v)}
+                onKeyDown={e => e.key === "Enter" && setWithDigital(v => !v)}
+                className="flex cursor-pointer items-center gap-4 rounded-xl border p-4 transition hover:bg-stone-50"
+                style={{ borderColor: "var(--border)" }}
               >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-stone-100 text-lg">
-                  🖥️
-                </div>
+                <span className="text-xl">🖥️</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-stone-800">Fichier digital 4K</p>
-                  <p className="text-xs text-stone-500">Recevez votre œuvre en haute définition</p>
+                  <p className="text-sm font-semibold text-stone-800">Fichier digital 4K</p>
+                  <p className="text-xs" style={{ color: "var(--muted)" }}>Recevez votre œuvre en haute définition</p>
                 </div>
-                <div className="flex shrink-0 flex-col items-end gap-1">
-                  <span className="text-xs font-semibold text-stone-700">+{fmt(DIGITAL_PRICE)}</span>
-                  <div
-                    className={`relative h-6 w-11 rounded-full transition-colors ${
-                      withDigital ? "bg-green-500" : "bg-stone-200"
-                    }`}
-                  >
-                    <span
-                      className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-                        withDigital ? "translate-x-5" : "translate-x-0.5"
-                      }`}
-                    />
-                  </div>
+                <div className="shrink-0 flex flex-col items-end gap-1.5">
+                  <span className="text-xs font-semibold text-stone-600">+{fmt(DIGITAL_PRICE)}</span>
+                  <Toggle on={withDigital} onToggle={() => setWithDigital(v => !v)} />
                 </div>
               </div>
             </div>
           </div>
 
           {/* Prix + CTA */}
-          <div className="p-6 sm:p-8">
-            <div className="mb-4 flex items-baseline gap-2">
-              <span className="text-3xl font-bold text-stone-800">{fmt(totalPrice)}</span>
-              <span className="text-sm text-stone-400">TTC · hors livraison</span>
+          <div className="pt-2">
+            <div className="mb-5 flex items-baseline gap-2">
+              <span className="text-4xl font-bold text-stone-900">{fmt(totalPrice)}</span>
+              <span className="text-sm" style={{ color: "var(--muted)" }}>TTC · hors livraison</span>
             </div>
             <button
               type="button"
               onClick={handleCommander}
               disabled={checkoutLoading}
-              className="w-full rounded-full bg-green-600 py-4 font-semibold text-white transition hover:bg-green-700 disabled:opacity-60"
+              className="w-full rounded-full py-4 font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+              style={{ backgroundColor: "var(--green)" }}
             >
-              {checkoutLoading
-                ? "Création de la commande…"
-                : `Commander — ${selectedVariant.label}`}
+              {checkoutLoading ? "Création de la commande…" : `Commander — ${selectedVariant.label}`}
             </button>
-            <p className="mt-3 text-center text-xs text-stone-400">
+            <p className="mt-3 text-center text-xs" style={{ color: "var(--muted)" }}>
               Version HD sans filigrane livrée après commande confirmée.
             </p>
           </div>
+
         </div>
       </div>
     </div>
