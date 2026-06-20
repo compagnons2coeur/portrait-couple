@@ -70,7 +70,7 @@ Vibrant Pixar 3D animated movie still, soft subsurface fur rendering, expressive
     accent: "#6B7280",
     prompt: `${BASE}
 
-High-end professional studio pet portrait, medium format camera, 85mm f/1.4 lens. Perfect three-point lighting: softbox key light at 45°, fill reflector, rim light. Clean white seamless backdrop. Tack-sharp focus on eyes, creamy bokeh. Natural colors, subtle contrast. Commercial editorial quality.`,
+High-end professional studio pet portrait, medium format camera, 85mm f/1.4 lens. Perfect three-point lighting: softbox key light at 45°, fill reflector, rim light. Clean white seamless backdrop. Tack-sharp focus on eyes, creamy bokeh. Natural colors, subtle contrast. Commercial editorial quality. Pure solid white background, no studio equipment, no light boxes, no shadows, no gradient, seamless white backdrop only.`,
   },
   {
     id: "studio-nb",
