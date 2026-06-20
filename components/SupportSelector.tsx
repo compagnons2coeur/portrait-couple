@@ -108,36 +108,34 @@ export default function SupportSelector({ mockupImageUrl, shopifyImageUrl, petNa
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl">
-      <button
-        type="button"
-        onClick={onBack}
-        className="mb-8 flex items-center gap-1.5 text-sm transition hover:opacity-70"
-        style={{ color: "var(--muted)" }}
-      >
-        ← Retour aux supports
-      </button>
+    <div className="fixed inset-0 z-50 overflow-y-auto" style={{ background: "var(--bg)" }}>
+      <div className="lg:flex lg:min-h-screen">
 
-      <div className="lg:flex lg:gap-16 lg:items-start">
-
-        {/* Left — mockup sticky */}
-        <div className="lg:sticky lg:top-8 lg:w-[52%] shrink-0 mb-8 lg:mb-0">
-          <div className="overflow-hidden rounded-2xl flex items-center justify-center min-h-72 lg:min-h-[540px]" style={{ backgroundColor: "#f0ece8" }}>
-            {loading && (
-              <div className="h-10 w-10 animate-spin rounded-full border-4 border-stone-200 border-t-stone-500" />
-            )}
-            {error && (
-              <p className="px-8 text-center text-sm text-red-400">{error}</p>
-            )}
-            {mockupUrl && !loading && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={mockupUrl} alt="Aperçu du tableau toile" className="w-full h-full object-cover" />
-            )}
-          </div>
+        {/* Left — mockup plein écran sticky */}
+        <div className="lg:sticky lg:top-0 lg:h-screen lg:w-1/2 shrink-0 flex items-center justify-center" style={{ backgroundColor: "#e8e4de" }}>
+          {loading && (
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-stone-200 border-t-stone-500" />
+          )}
+          {error && (
+            <p className="px-8 text-center text-sm text-red-400">{error}</p>
+          )}
+          {mockupUrl && !loading && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={mockupUrl} alt="Aperçu du tableau toile" className="w-full h-full object-cover" />
+          )}
+          {/* Bouton retour positionné sur l'image */}
+          <button
+            type="button"
+            onClick={onBack}
+            className="absolute top-5 left-5 flex items-center gap-1.5 rounded-full bg-white/80 backdrop-blur-sm px-4 py-2 text-sm font-medium shadow-sm transition hover:bg-white"
+            style={{ color: "var(--ink)" }}
+          >
+            ← Retour
+          </button>
         </div>
 
-        {/* Right — options */}
-        <div className="lg:w-[48%] space-y-8">
+        {/* Right — options scrollables */}
+        <div className="lg:w-1/2 px-6 py-10 lg:px-14 lg:py-14 space-y-8">
 
           {/* Header */}
           <div>
