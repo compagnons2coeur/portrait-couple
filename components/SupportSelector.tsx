@@ -37,14 +37,10 @@ function fmt(price: number) {
   return price.toFixed(2).replace(".", ",") + "€";
 }
 
-function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
+function Toggle({ on }: { on: boolean }) {
   return (
     <div
-      role="button"
-      tabIndex={0}
-      onClick={onToggle}
-      onKeyDown={e => e.key === "Enter" && onToggle()}
-      className="relative h-6 w-11 rounded-full transition-colors cursor-pointer"
+      className="relative h-6 w-11 rounded-full transition-colors pointer-events-none"
       style={{ backgroundColor: on ? "var(--green)" : "var(--border)" }}
     >
       <span
@@ -233,7 +229,7 @@ export default function SupportSelector({ mockupImageUrl, shopifyImageUrl, petNa
                 </div>
                 <div className="shrink-0 flex flex-col items-end gap-1.5">
                   <span className="text-xs font-bold" style={{ color: "var(--green)" }}>Offert</span>
-                  <Toggle on={withSignature} onToggle={() => setWithSignature(v => !v)} />
+                  <Toggle on={withSignature} />
                 </div>
               </div>
 
@@ -253,7 +249,7 @@ export default function SupportSelector({ mockupImageUrl, shopifyImageUrl, petNa
                 </div>
                 <div className="shrink-0 flex flex-col items-end gap-1.5">
                   <span className="text-xs font-semibold text-stone-600">+{fmt(DIGITAL_PRICE)}</span>
-                  <Toggle on={withDigital} onToggle={() => setWithDigital(v => !v)} />
+                  <Toggle on={withDigital} />
                 </div>
               </div>
             </div>

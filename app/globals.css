@@ -7,8 +7,11 @@
   --ink: #1c1917;
   --muted: #78716c;
   --border: #e5e1db;
-  --green: #2d6a4f;
-  --green-light: #e8f2ec;
+  --green: #406841;
+  --green-dark: #2e4d2f;
+  --green-base: #5D7E5E;
+  --green-light: #eaf2ea;
+  --orange: #F4B183;
 }
 
 html {
