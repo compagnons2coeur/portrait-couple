@@ -3,15 +3,13 @@
 import { useEffect, useState } from "react";
 
 const TABLEAU_TOILE = {
-  mockupUuid: "d695bb0a-f01e-4a74-9127-c18240bc6a54",
-  smartObjectUuid: "ecf80a3c-8ab3-4fcd-878a-ce6b8b8e112e",
   label: "Tableau Toile",
   description: "Portrait de votre animal imprimé sur toile tendue premium, prêt à accrocher.",
   variants: [
-    { label: "20×30 cm", price: 34.90, variantId: 53838496661847 },
-    { label: "30×40 cm", price: 44.90, variantId: 53838496694615 },
-    { label: "40×60 cm", price: 59.90, variantId: 53838496727383 },
-    { label: "50×70 cm", price: 74.90, variantId: 53838496760151 },
+    { label: "20×30 cm", price: 34.90, variantId: 53838496661847, mockupUuid: "d695bb0a-f01e-4a74-9127-c18240bc6a54", smartObjectUuid: "ecf80a3c-8ab3-4fcd-878a-ce6b8b8e112e" },
+    { label: "30×40 cm", price: 44.90, variantId: 53838496694615, mockupUuid: "d695bb0a-f01e-4a74-9127-c18240bc6a54", smartObjectUuid: "ecf80a3c-8ab3-4fcd-878a-ce6b8b8e112e" },
+    { label: "40×60 cm", price: 59.90, variantId: 53838496727383, mockupUuid: "d695bb0a-f01e-4a74-9127-c18240bc6a54", smartObjectUuid: "ecf80a3c-8ab3-4fcd-878a-ce6b8b8e112e" },
+    { label: "50×70 cm", price: 74.90, variantId: 53838496760151, mockupUuid: "d695bb0a-f01e-4a74-9127-c18240bc6a54", smartObjectUuid: "ecf80a3c-8ab3-4fcd-878a-ce6b8b8e112e" },
   ],
 };
 
@@ -70,7 +68,11 @@ export default function SupportSelector({ mockupImageUrl, shopifyImageUrl, petNa
         const res = await fetch("/api/mockup", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ imageUrl: mockupImageUrl, mockupUuid: TABLEAU_TOILE.mockupUuid, smartObjectUuid: TABLEAU_TOILE.smartObjectUuid }),
+          body: JSON.stringify({
+            imageUrl: mockupImageUrl,
+            mockupUuid: selectedVariant.mockupUuid,
+            smartObjectUuid: selectedVariant.smartObjectUuid,
+          }),
         });
         const data = await res.json() as { mockupUrl?: string; error?: string };
         if (!res.ok || !data.mockupUrl) throw new Error(data.error ?? "Erreur génération mockup.");
@@ -82,7 +84,7 @@ export default function SupportSelector({ mockupImageUrl, shopifyImageUrl, petNa
       }
     };
     void generate();
-  }, [mockupImageUrl]);
+  }, [mockupImageUrl, selectedVariant]);
 
   const handleCommander = async () => {
     setCheckoutLoading(true);
