@@ -15,7 +15,7 @@ const BLOCKED_MESSAGE =
 
 const SUPPORT_PRODUCTS = [
   { id: "tableau-toile", label: "Tableau Toile",  emoji: "🖼️", prix: "À partir de 34,90€", available: true  },
-  { id: "tableau-metal", label: "Tableau Métal",  emoji: "✨", prix: "Bientôt",             available: false },
+  { id: "tableau-metal", label: "Tableau Métal",  emoji: "✨", prix: "À partir de 39,90€", available: true  },
   { id: "tshirt",        label: "T-shirt",         emoji: "👕", prix: "Bientôt",             available: false },
   { id: "sweat",         label: "Sweat",           emoji: "🧥", prix: "Bientôt",             available: false },
   { id: "tote-bag",      label: "Tote bag",        emoji: "👜", prix: "Bientôt",             available: false },
@@ -97,6 +97,7 @@ export default function PortraitTunnel() {
   const [emailError, setEmailError] = useState<string | null>(null);
   const [creditsRemaining, setCreditsRemaining] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<string>("tableau-toile");
 
   useEffect(() => {
     let cancelled = false;
@@ -650,7 +651,7 @@ export default function PortraitTunnel() {
                     key={product.id}
                     type="button"
                     disabled={!product.available}
-                    onClick={() => setStep("support")}
+                    onClick={() => { setSelectedProduct(product.id); setStep("support"); }}
                     className={`rounded-xl border p-4 text-left transition-all duration-200 ${
                       product.available
                         ? "bg-white hover:-translate-y-0.5 hover:shadow-md cursor-pointer"
@@ -714,6 +715,7 @@ export default function PortraitTunnel() {
       {/* ── SUPPORT ── */}
       {step === "support" && originalImageUrl && (
         <SupportSelector
+          productId={selectedProduct}
           mockupImageUrl={blobImageUrl ?? originalImageUrl}
           shopifyImageUrl={originalImageUrl}
           petName={petName || undefined}

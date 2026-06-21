@@ -2,15 +2,30 @@
 
 import { useEffect, useState } from "react";
 
-const TABLEAU_TOILE = {
-  label: "Tableau Toile",
-  description: "Portrait de votre animal imprimé sur toile tendue premium, prêt à accrocher.",
-  variants: [
-    { label: "20×30 cm", price: 34.90, variantId: 53838496661847, mockupUuid: "d695bb0a-f01e-4a74-9127-c18240bc6a54", smartObjectUuid: "ecf80a3c-8ab3-4fcd-878a-ce6b8b8e112e" },
-    { label: "30×40 cm", price: 44.90, variantId: 53838496694615, mockupUuid: "d695bb0a-f01e-4a74-9127-c18240bc6a54", smartObjectUuid: "ecf80a3c-8ab3-4fcd-878a-ce6b8b8e112e" },
-    { label: "40×60 cm", price: 59.90, variantId: 53838496727383, mockupUuid: "d695bb0a-f01e-4a74-9127-c18240bc6a54", smartObjectUuid: "ecf80a3c-8ab3-4fcd-878a-ce6b8b8e112e" },
-    { label: "50×70 cm", price: 74.90, variantId: 53838496760151, mockupUuid: "d695bb0a-f01e-4a74-9127-c18240bc6a54", smartObjectUuid: "ecf80a3c-8ab3-4fcd-878a-ce6b8b8e112e" },
-  ],
+const SMART_OBJ_METAL = "1685ddb5-152d-4595-8624-4213d767037e";
+const MOCKUP_METAL    = "6486ae2b-f0f8-436d-9290-22f03fc1543d";
+
+const PRODUCTS: Record<string, Product> = {
+  "tableau-toile": {
+    label: "Tableau Toile",
+    description: "Portrait de votre animal imprimé sur toile tendue premium, prêt à accrocher.",
+    variants: [
+      { label: "20×30 cm", price: 34.90, variantId: 53838496661847, mockupUuid: "d695bb0a-f01e-4a74-9127-c18240bc6a54", smartObjectUuid: "ecf80a3c-8ab3-4fcd-878a-ce6b8b8e112e" },
+      { label: "30×40 cm", price: 44.90, variantId: 53838496694615, mockupUuid: "d695bb0a-f01e-4a74-9127-c18240bc6a54", smartObjectUuid: "ecf80a3c-8ab3-4fcd-878a-ce6b8b8e112e" },
+      { label: "40×60 cm", price: 59.90, variantId: 53838496727383, mockupUuid: "d695bb0a-f01e-4a74-9127-c18240bc6a54", smartObjectUuid: "ecf80a3c-8ab3-4fcd-878a-ce6b8b8e112e" },
+      { label: "50×70 cm", price: 74.90, variantId: 53838496760151, mockupUuid: "d695bb0a-f01e-4a74-9127-c18240bc6a54", smartObjectUuid: "ecf80a3c-8ab3-4fcd-878a-ce6b8b8e112e" },
+    ],
+  },
+  "tableau-metal": {
+    label: "Tableau Métal",
+    description: "Portrait sublimé sur plaque aluminium, rendu brillant et couleurs éclatantes.",
+    variants: [
+      { label: "20×30 cm", price: 39.90, variantId: 53838536147287, mockupUuid: MOCKUP_METAL, smartObjectUuid: SMART_OBJ_METAL },
+      { label: "30×40 cm", price: 49.90, variantId: 53838536180055, mockupUuid: MOCKUP_METAL, smartObjectUuid: SMART_OBJ_METAL },
+      { label: "40×60 cm", price: 64.90, variantId: 53838536212823, mockupUuid: MOCKUP_METAL, smartObjectUuid: SMART_OBJ_METAL },
+      { label: "50×70 cm", price: 79.90, variantId: 53838536245591, mockupUuid: MOCKUP_METAL, smartObjectUuid: SMART_OBJ_METAL },
+    ],
+  },
 };
 
 const CADRES = [
@@ -24,7 +39,22 @@ const CADRES = [
 
 const DIGITAL_PRICE = 4.99;
 
+interface Variant {
+  label: string;
+  price: number;
+  variantId: number;
+  mockupUuid: string;
+  smartObjectUuid: string;
+}
+
+interface Product {
+  label: string;
+  description: string;
+  variants: Variant[];
+}
+
 interface Props {
+  productId: string;
   mockupImageUrl: string;
   shopifyImageUrl: string;
   petName?: string;
@@ -49,11 +79,12 @@ function Toggle({ on }: { on: boolean }) {
   );
 }
 
-export default function SupportSelector({ mockupImageUrl, shopifyImageUrl, petName, onBack }: Props) {
+export default function SupportSelector({ productId, mockupImageUrl, shopifyImageUrl, petName, onBack }: Props) {
+  const product = PRODUCTS[productId] ?? PRODUCTS["tableau-toile"];
   const [mockupUrl, setMockupUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedVariant, setSelectedVariant] = useState(TABLEAU_TOILE.variants[1]);
+  const [selectedVariant, setSelectedVariant] = useState(product.variants[1]);
   const [selectedCadre, setSelectedCadre] = useState(CADRES[0]);
   const [withSignature, setWithSignature] = useState(false);
   const [withDigital, setWithDigital] = useState(false);
@@ -142,16 +173,16 @@ export default function SupportSelector({ mockupImageUrl, shopifyImageUrl, petNa
           {/* Header */}
           <div>
             <h2 className="font-display text-3xl text-stone-900" style={{ letterSpacing: "-0.01em" }}>
-              {TABLEAU_TOILE.label}
+              {product.label}
             </h2>
-            <p className="mt-1 text-sm" style={{ color: "var(--muted)" }}>{TABLEAU_TOILE.description}</p>
+            <p className="mt-1 text-sm" style={{ color: "var(--muted)" }}>{product.description}</p>
           </div>
 
           {/* FORMAT */}
           <div>
             <p className="mb-3 text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--muted)" }}>Format</p>
             <div className="grid grid-cols-2 gap-2">
-              {TABLEAU_TOILE.variants.map(v => {
+              {product.variants.map(v => {
                 const active = selectedVariant.variantId === v.variantId;
                 return (
                   <button
