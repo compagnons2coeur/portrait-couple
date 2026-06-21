@@ -478,7 +478,7 @@ export default function PortraitTunnel() {
               <button
                 type="button"
                 onClick={async () => {
-                  const res = await fetch("/exemple-pet.jpg");
+                  const res = await fetch("/demos/exemple-pet.jpg");
                   const blob = await res.blob();
                   const file = new File([blob], "exemple-pet.jpg", { type: "image/jpeg" });
                   handleFile(file);
