@@ -4,10 +4,11 @@ import TikTokPixel from "@/components/TikTokPixel";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://portrait-couple.compagnonsdecoeur.fr"),
-  title: "Portrait personnalisé de couple | Aperçu gratuit",
+  title: "Portrait de couple — bientôt disponible | Compagnons de Cœur",
   description:
-    "Transformez une photo de votre couple en portrait personnalisé. Aperçu gratuit avant impression sur tableau ou textile.",
+    "L’atelier de portrait de couple Compagnons de Cœur est en préparation. En attendant, découvrez nos textiles personnalisés avec la photo de votre animal.",
   alternates: { canonical: "/" },
+  robots: { index: false, follow: true },
 };
 
 export default function RootLayout({
